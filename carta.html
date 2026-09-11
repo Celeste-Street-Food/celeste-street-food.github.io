@@ -63,6 +63,7 @@
     .plato .nombre { font-weight:800; font-size: 8.8pt; line-height: 1.12; }
     .plato .precio { color:#E86400; font-weight:900; font-size: 12.5pt; margin-top:auto; }
     .chip { font-size: 5.6pt; font-weight:800; padding: .7mm 2.2mm; border-radius: 5mm; display:inline-block; margin-bottom:.8mm; }
+    .chip.agotado { background:#b3261e; color:#fff; }
     .chip.casero { background:#C8E646; color:#121212; }
     .chip.estrella { background:#FF7A00; color:#fff; }
     .chip.nuevo { background:#121212; color:#fff; }
@@ -146,6 +147,7 @@
 
       const moneda = n => "$" + n.toLocaleString("es-CO");
       const chip = m =>
+        m.agotado ? '<span class="chip agotado">Agotado</span>' :
         m.casero ? '<span class="chip casero">Casero</span>' :
         m.estrella ? '<span class="chip estrella">⭐ Favorito</span>' :
         m.nuevo ? '<span class="chip nuevo">Nuevo</span>' : "";

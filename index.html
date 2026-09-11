@@ -114,6 +114,16 @@
       font-size: .64em; font-weight: 800; color: #fff; background: #121212;
       padding: 2px 8px; border-radius: 20px; white-space: nowrap;
     }
+    .badge-agotado {
+      font-size: .64em; font-weight: 800; color: #fff; background: #b3261e;
+      padding: 2px 8px; border-radius: 20px; white-space: nowrap;
+    }
+    .platillo.agotado { opacity: .62; }
+    .platillo.agotado .ingredientes { opacity: .5; pointer-events: none; }
+    .msj-agotado {
+      text-align: center; padding: 10px 8px; font-weight: 700;
+      color: #b3261e; font-size: .9em;
+    }
     .platillo .envase {
       margin-top: 10px; font-size: .74em; font-weight: 600; color: #5a6570;
       background: #F7F8FA; border-radius: 10px; padding: 7px 11px;
@@ -481,7 +491,7 @@
         i += 1;
         const id = i;
         const card = document.createElement("div");
-        card.className = "platillo";
+        card.className = "platillo" + (m.agotado ? " agotado" : "");
         card.innerHTML = `
           <div class="cabeza">
             <div class="mini"><span>${m.emoji}</span><img src="img/${fotoMini(m)}" alt="${m.nombre}" loading="lazy" onerror="this.remove()"></div>
@@ -491,6 +501,7 @@
                 ${m.casero ? '<span class="badge-casero">Casero</span>' : ''}
                 ${m.estrella ? '<span class="badge-estrella">⭐ Favorito</span>' : ''}
                 ${m.nuevo ? '<span class="badge-nuevo">Nuevo</span>' : ''}
+                ${m.agotado ? '<span class="badge-agotado">Agotado</span>' : ''}
               </div>
               <span class="cat">${m.cat}</span>
             </div>
@@ -553,6 +564,10 @@
         }
 
         function dibujarAcciones() {
+          if (m.agotado) {
+            acciones.innerHTML = '<div class="msj-agotado">Agotado hoy — vuelve mañana 🙏</div>';
+            return;
+          }
           const n = pedido[id] || 0;
           if (n === 0) {
             acciones.innerHTML = `

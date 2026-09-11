@@ -307,6 +307,12 @@
       font-family: inherit; font-size: .9em; color: #121212; background: #fff;
     }
     .panel-direccion::placeholder { color: #9AA3AD; }
+    .btn-gps {
+      width: 100%; padding: 11px; margin-bottom: 10px;
+      background: #EAF4FB; color: #1c6ea4; border: 1.5px solid #BBD8EC; border-radius: 10px;
+      font-family: inherit; font-size: .85em; font-weight: 700; cursor: pointer;
+    }
+    .btn-gps.lista { background: #DCF8E6; border-color: #2FAE57; color: #0d3b21; }
     .btn-vaciar {
       width: 100%; background: none; border: none; color: #b3261e; font-size: .82em;
       font-weight: 700; padding: 8px; margin-top: 4px; cursor: pointer;
@@ -355,6 +361,7 @@
     <div class="panel-lista" id="panelLista"></div>
     <div class="panel-pie">
       <input id="panelDireccion" class="panel-direccion" type="text" autocomplete="street-address" placeholder="Dirección de entrega (opcional)"/>
+      <button id="btnGps" class="btn-gps" type="button">📍 Enviar mi ubicación GPS</button>
       <div class="panel-total"><span>Total</span><strong id="panelTotal">$0 COP</strong></div>
       <a id="panelEnviar" class="btn btn-whatsapp" href="#" style="margin-top:0">ENVIAR PEDIDO POR WHATSAPP</a>
       <button class="btn-vaciar" id="panelVaciar">Vaciar pedido</button>
@@ -412,12 +419,34 @@
     // (guardado local del navegador; no se envía a ningún servidor)
     // ============================================================
     const LS_KEY = "pedido-tarjeta-v2";
+    let gps = null; // {lat, lng} — ubicación GPS que el cliente comparte
+
+    const btnGps = document.getElementById("btnGps");
+    btnGps.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        btnGps.textContent = "⚠ Tu navegador no permite ubicación — escribe la dirección";
+        return;
+      }
+      btnGps.textContent = "📍 Buscando tu ubicación…";
+      navigator.geolocation.getCurrentPosition(pos => {
+        gps = { lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6) };
+        btnGps.textContent = "✓ Ubicación lista (toca para actualizar)";
+        btnGps.classList.add("lista");
+        guardarPedido();
+      }, () => {
+        btnGps.textContent = gps
+          ? "✓ Ubicación lista (toca para actualizar)"
+          : "⚠ No se pudo obtener — escribe la dirección";
+      }, { enableHighAccuracy: true, timeout: 10000 });
+    });
+
     function guardarPedido() {
       try {
         localStorage.setItem(LS_KEY, JSON.stringify({
           pedido,
           sin: Array.from(sinMap.entries()),
-          dir: document.getElementById("panelDireccion").value
+          dir: document.getElementById("panelDireccion").value,
+          gps
         }));
       } catch (e) { /* sin localStorage (modo privado), el pedido vive solo en memoria */ }
     }
@@ -428,6 +457,11 @@
         for (const k in d.pedido) pedido[k] = d.pedido[k];
         (d.sin || []).forEach(par => sinMap.set(Number(par[0]), par[1]));
         if (d.dir) document.getElementById("panelDireccion").value = d.dir;
+        if (d.gps) {
+          gps = d.gps;
+          btnGps.textContent = "✓ Ubicación lista (toca para actualizar)";
+          btnGps.classList.add("lista");
+        }
       } catch (e) { /* datos corruptos: se empieza de cero */ }
     }
 
@@ -590,6 +624,11 @@
       let texto = "Hola " + NOMBRE + "! Quiero hacer este pedido:\n" + cuerpo + "\n\nTotal: " + moneda(total);
       const dir = document.getElementById("panelDireccion").value.trim();
       if (dir) texto += "\n📍 Dirección: " + dir;
+      if (gps) {
+        texto += "\n🗺️ Ubicación exacta: https://www.google.com/maps?q=" + gps.lat + "," + gps.lng;
+      } else if (dir) {
+        texto += "\n🗺️ Ver en mapa: https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(dir + ", Sibaté, Cundinamarca");
+      }
       return "https://wa.me/" + WHATSAPP_INTL + "?text=" + encodeURIComponent(texto);
     }
 

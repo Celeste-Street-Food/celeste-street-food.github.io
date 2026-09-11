@@ -14,7 +14,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Comidas Rápidas Sibaté — Domicilios</title>
   <meta name="description" content="Comidas rápidas con domicilio en todo Sibaté. Menú interactivo: papa criolla con longaniza casera, salchipapa, arepas, huevos y desayunos."/>
   <meta name="theme-color" content="#5AB9EA"/>
@@ -22,7 +22,8 @@
   <meta property="og:description" content="Desayunos, arepas, salchipapa y papa criolla. Ármalo y pídelo por WhatsApp."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&family=Outfit:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%9F%3C/text%3E%3C/svg%3E"/>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     html { scroll-behavior: smooth; }
@@ -291,6 +292,12 @@
     .panel-pie { padding: 12px 18px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid #eee; }
     .panel-total { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; font-size: .95em; }
     .panel-total strong { font-size: 1.2em; }
+    .panel-direccion {
+      width: 100%; padding: 12px 14px; margin-bottom: 10px;
+      border: 1.5px solid #E3E6EA; border-radius: 10px;
+      font-family: inherit; font-size: .9em; color: #121212; background: #fff;
+    }
+    .panel-direccion::placeholder { color: #9AA3AD; }
     .btn-vaciar {
       width: 100%; background: none; border: none; color: #b3261e; font-size: .82em;
       font-weight: 700; padding: 8px; margin-top: 4px; cursor: pointer;
@@ -309,23 +316,22 @@
     </span>
   </div>
 
-  <!-- EDITAR: nombre del negocio -->
-  <div class="nombre">Comidas Rápidas Sibaté</div>
-  <div class="sub">Domicilios en todo Sibaté · Cundinamarca</div>
-  <div class="propuesta">Precio directo, sin recargos de apps de domicilio</div>
+  <!-- EDITAR: el nombre, eslogan y demás viven en datos.js (misma carpeta).
+       OJO: al cambiar el nombre, actualiza también <title> y las og: de arriba
+       (las apps de WhatsApp no ejecutan JavaScript al generar la vista previa). -->
+  <div class="nombre" id="nombreNegocio">Comidas Rápidas Sibaté</div>
+  <div class="sub" id="subNegocio">Domicilios en todo Sibaté · Cundinamarca</div>
+  <div class="propuesta" id="propuestaTxt">Precio directo, sin recargos de apps de domicilio</div>
 
   <div class="menu" id="menu"></div>
 
   <div class="info">
-    <!-- EDITAR: horarios -->
-    <div class="cajita"><span>Horario</span><strong>Por confirmar</strong></div>
-    <!-- EDITAR: tiempo estimado de domicilio -->
-    <div class="cajita"><span>Domicilio</span><strong>20–30 min aprox.</strong></div>
-    <!-- EDITAR: zona de domicilio -->
-    <div class="cajita ancha"><span>Zona de cobertura</span><strong>Sibaté y alrededores</strong></div>
+    <div class="cajita"><span>Horario</span><strong id="horarioTxt">Por confirmar</strong></div>
+    <div class="cajita"><span>Domicilio</span><strong id="domicilioTxt">20–30 min aprox.</strong></div>
+    <div class="cajita ancha"><span>Zona de cobertura</span><strong id="zonaTxt">Sibaté y alrededores</strong></div>
   </div>
 
-  <a class="btn btn-llamar" href="tel:+573222676860">LLAMAR AHORA</a>
+  <a class="btn btn-llamar" id="btnLlamar" href="tel:+573222676860">LLAMAR AHORA</a>
 
   <div class="footer">COMIDAS RÁPIDAS SIBATÉ · SIBATÉ, CUNDINAMARCA</div>
 
@@ -347,38 +353,31 @@
     </div>
     <div class="panel-lista" id="panelLista"></div>
     <div class="panel-pie">
+      <input id="panelDireccion" class="panel-direccion" type="text" autocomplete="street-address" placeholder="Dirección de entrega (opcional)"/>
       <div class="panel-total"><span>Total</span><strong id="panelTotal">$0 COP</strong></div>
       <a id="panelEnviar" class="btn btn-whatsapp" href="#" style="margin-top:0">ENVIAR PEDIDO POR WHATSAPP</a>
       <button class="btn-vaciar" id="panelVaciar">Vaciar pedido</button>
     </div>
   </div>
 
+  <script src="datos.js"></script>
   <script>
     // ============================================================
-    // DATOS DEL NEGOCIO — EDITA AQUÍ
+    // LOS DATOS DEL NEGOCIO VIVEN EN datos.js (misma carpeta).
+    // Aquí solo se leen y se pintan en la página.
     // ============================================================
-    const WHATSAPP_INTL = "573222676860"; // formato wa.me, sin +
-    const NOMBRE = "Comidas Rápidas Sibaté";
+    const NOMBRE = DATOS.nombre;
+    const WHATSAPP_INTL = DATOS.whatsappIntl;
+    const MENU = DATOS.menu;
 
-    // PRECIOS E INGREDIENTES SON PLACEHOLDER — reemplaza por los reales
-    // emoji = "foto" del plato (placeholder) · casero:true resalta el plato con insignia
-    // slug = nombre EXACTO de la foto real en la carpeta img/ (ej. img/huevos-fritos.jpg)
-    const MENU = [
-      { cat:"Desayunos y huevos", nombre:"Huevos fritos",     precio:5000,  slug:"huevos-fritos",    emoji:"🍳", ing:["Huevos de campo","Arroz con hogao","Pan", "Café opcional"] },
-      { cat:"Desayunos y huevos", nombre:"Huevos revueltos",  precio:5500,  slug:"huevos-revueltos", emoji:"🍳", ing:["Huevos revueltos","Cebolla y tomate","Arroz","Pan"] },
-      { cat:"Desayunos y huevos", nombre:"Huevos perico",     precio:6000,  slug:"huevos-perico",    emoji:"🍅", ing:["Hogao de tomate y cebolla","Aguacate","Arroz","Pan"] },
-
-      { cat:"Arepas", nombre:"Arepas rellenas",   precio:6500, slug:"arepas-rellenas",  emoji:"🫓", ing:["Arepa de maíz","Queso derretido","Pollo o carne a elegir","Mantequilla"] },
-      { cat:"Arepas", nombre:"Arepas rancheras",  precio:8000, slug:"arepas-rancheras", emoji:"🥓", ing:["Arepa de maíz","Huevo","Longaniza","Chorizo","Queso y hogao"] },
-
-      { cat:"Picadas y fritos", nombre:"Papa criolla con longaniza casera", precio:10000, slug:"papa-criolla-longaniza", emoji:"🌭", ing:["Papas criollas fritas","Longaniza casera artesanal","Ají y limón","Mayonesa"], casero:true },
-      { cat:"Picadas y fritos", nombre:"Salchipapa", precio:9000, slug:"salchipapa", emoji:"🍟", ing:["Papas fritas","Salchicha","Queso rallado","Salsa de la casa","Piña"] },
-      { cat:"Picadas y fritos", nombre:"Patacón relleno", precio:8000, emoji:"🍌", ing:["Patacón de plátano verde","Relleno a elegir","Queso derretido","Ensalada de repollo","Salsa de la casa"], fotoMini:"patacon-01-cuadrada.jpg", fotos:["patacon-02-mediana.jpg","patacon-01.jpeg"] },
-
-      { cat:"Bebidas", nombre:"Café",          precio:2500, slug:"cafe",          emoji:"☕", ing:["Café tinto tradicional"] },
-      { cat:"Bebidas", nombre:"Café con leche", precio:3000, slug:"cafe-con-leche", emoji:"🥛", ing:["Café","Leche caliente"] },
-      { cat:"Bebidas", nombre:"Avena",          precio:3500, slug:"avena",          emoji:"🥣", ing:["Avena fría o caliente","Hielo"] },
-    ];
+    document.title = NOMBRE + " — Domicilios";
+    document.getElementById("nombreNegocio").textContent = NOMBRE;
+    document.getElementById("subNegocio").textContent = DATOS.eslogan;
+    document.getElementById("propuestaTxt").textContent = DATOS.propuesta;
+    document.getElementById("horarioTxt").textContent = DATOS.horario;
+    document.getElementById("domicilioTxt").textContent = DATOS.tiempoDomicilio;
+    document.getElementById("zonaTxt").textContent = DATOS.zonaDomicilio;
+    document.getElementById("btnLlamar").href = "tel:" + DATOS.telefonoCall;
 
     // ============================================================
     // RENDER DEL MENÚ
@@ -397,13 +396,38 @@
     const panelVaciar = document.getElementById("panelVaciar");
 
     const moneda = n => "$" + n.toLocaleString("es-CO") + " COP";
-    // Foto de la miniatura (menú sin desplegar): primero la explícita fotoMini,
-    // si no la primera del arreglo fotos, y como último recurso la del slug
-    const fotoMini = m => (m.fotoMini) ? m.fotoMini : ((m.fotos && m.fotos.length) ? m.fotos[0] : (m.slug + ".jpg"));
+    // Miniatura y galería: si el plato tiene arreglo "fotos" se usa esa lista;
+    // si no, una sola foto llamada img/<slug>.jpg (si falta, queda el emoji)
+    const fotosDe = m => (m.fotos && m.fotos.length) ? m.fotos : [m.slug + ".jpg"];
+    const fotoMini = m => fotosDe(m)[0];
     const pedido = {}; // id -> cantidad
     const selMap = new Map(); // id -> [ingredientes seleccionados]
-    const registro = new Map(); // id -> { m, refrescar }
+    const registro = new Map(); // id -> { m, refrescar, chips }
     let panelAbierto = false;
+
+    // ============================================================
+    // PERSISTENCIA: el pedido sobrevive recargas de la página
+    // (guardado local del navegador; no se envía a ningún servidor)
+    // ============================================================
+    const LS_KEY = "pedido-tarjeta";
+    function guardarPedido() {
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify({
+          pedido,
+          sel: Array.from(selMap.entries()),
+          dir: document.getElementById("panelDireccion").value
+        }));
+      } catch (e) { /* sin localStorage (modo privado), el pedido vive solo en memoria */ }
+    }
+    function cargarPedido() {
+      try {
+        const d = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+        if (!d) return;
+        for (const k in d.pedido) pedido[k] = d.pedido[k];
+        (d.sel || []).forEach(par => selMap.set(Number(par[0]), par[1]));
+        if (d.dir) document.getElementById("panelDireccion").value = d.dir;
+      } catch (e) { /* datos corruptos: se empieza de cero */ }
+    }
 
     let i = 0;
     const catRender = new Map();
@@ -440,11 +464,9 @@
               <div class="foto">
                 <span class="plato"></span>
                 <span>${m.emoji}</span>
-                ${(m.fotos && m.fotos.length)
-                  ? m.fotos.map((f, fi) => `<img class="slide ${fi === 0 ? 'activ' : ''}" src="img/${f}" alt="${m.nombre} ${fi + 1}" loading="lazy" onerror="this.remove()">`).join("")
-                  : `<img class="slide activ" src="img/${m.slug}.jpg" alt="${m.nombre}" loading="lazy" onerror="this.remove()">`}
-                ${(m.fotos && m.fotos.length > 1)
-                  ? `<div class="galeria-dots">${m.fotos.map((f, fi) => `<button class="dot ${fi === 0 ? 'activ' : ''}" aria-label="Ver foto ${fi + 1}"></button>`).join("")}</div>`
+                ${fotosDe(m).map((f, fi) => `<img class="slide ${fi === 0 ? 'activ' : ''}" src="img/${f}" alt="${m.nombre} ${fi + 1}" loading="lazy" onerror="this.remove()">`).join("")}
+                ${fotosDe(m).length > 1
+                  ? `<div class="galeria-dots">${fotosDe(m).map((f, fi) => `<button class="dot ${fi === 0 ? 'activ' : ''}" aria-label="Ver foto ${fi + 1}"></button>`).join("")}</div>`
                   : ""}
               </div>
               <div class="ingredientes">${m.ing.map(x => `<span>${x}</span>`).join("")}</div>
@@ -479,6 +501,7 @@
           const sel = [];
           chips.forEach(c => { if (c.classList.contains("sel")) sel.push(c.textContent); });
           if (sel.length) selMap.set(id, sel); else selMap.delete(id);
+          guardarPedido();
         }));
 
         function pedirSoloEste() {
@@ -533,7 +556,7 @@
           actualizarTodo();
         }
 
-        registro.set(id, { m, refrescarCard });
+        registro.set(id, { m, refrescarCard, chips });
         dibujarAcciones();
         menuEl.appendChild(card);
       });
@@ -558,11 +581,14 @@
         const extra = (notas && notas.length) ? " · notas: " + notas.join(", ") : "";
         return "• " + l.m.nombre + " x" + l.n + " (" + moneda(l.subtotal) + extra + ")";
       }).join("\n");
-      const texto = "Hola " + NOMBRE + "! Quiero hacer este pedido:\n" + cuerpo + "\n\nTotal: " + moneda(total);
+      let texto = "Hola " + NOMBRE + "! Quiero hacer este pedido:\n" + cuerpo + "\n\nTotal: " + moneda(total);
+      const dir = document.getElementById("panelDireccion").value.trim();
+      if (dir) texto += "\n📍 Dirección: " + dir;
       return "https://wa.me/" + WHATSAPP_INTL + "?text=" + encodeURIComponent(texto);
     }
 
     function actualizarTodo() {
+      guardarPedido();
       const { lineas, total, nItems } = lineasPedido();
 
       if (nItems === 0) {
@@ -628,8 +654,20 @@
     panelFondo.addEventListener("click", cerrarPanelFn);
     cerrarPanel.addEventListener("click", cerrarPanelFn);
     panelVaciar.addEventListener("click", () => {
-      registro.forEach(({ refrescarCard }, id) => { delete pedido[id]; });
+      registro.forEach(({ refrescarCard, chips }, id) => {
+        delete pedido[id];
+        selMap.delete(id);
+        chips.forEach(c => c.classList.remove("sel"));
+      });
       registro.forEach(({ refrescarCard }) => refrescarCard());
+    });
+
+    // Al abrir la tarjeta se recupera el pedido guardado (por si recargaron)
+    cargarPedido();
+    registro.forEach(({ refrescarCard, chips }, id) => {
+      const sel = selMap.get(id);
+      if (sel && sel.length) chips.forEach(c => { if (sel.includes(c.textContent)) c.classList.add("sel"); });
+      if (pedido[id]) refrescarCard();
     });
   </script>
 </body>

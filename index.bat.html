@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     TARJETA DIGITAL — COMIDAS RÁPIDAS SIBATÉ (FASE A + B parcial)
+     Paleta 60-30-10 aprobada:
+       60% Celeste #5AB9EA | 30% Blanco + Negro #121212
+       10% Naranja #FF7A00 + Lima #C8E646
+     EDICIÓN RÁPIDA:
+       - NOMBRE     → <div class="nombre">...
+       - WHATSAPP   → const WHATSAPP_INTL
+       - LLAMAR     → href tel:...
+       - HORARIOS   → <div class="cajita">... Horario
+       - MENÚ       → arreglo MENU (precio, emoji, ingredientes)
+     ============================================================ -->
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Comidas Rápidas Sibaté — Domicilios</title>
+  <meta name="description" content="Comidas rápidas con domicilio en todo Sibaté. Menú interactivo: papa criolla con longaniza casera, salchipapa, arepas, huevos y desayunos."/>
+  <meta name="theme-color" content="#5AB9EA"/>
+  <meta property="og:title" content="Comidas Rápidas Sibaté — Domicilios"/>
+  <meta property="og:description" content="Desayunos, arepas, salchipapa y papa criolla. Ármalo y pídelo por WhatsApp."/>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(175deg, #5AB9EA 0%, #77c6ee 45%, #5AB9EA 100%);
+      color: #121212; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0 16px 120px; position: relative; overflow-x: hidden;
+    }
+    body::before {
+      content: "C"; position: fixed; top: 4vh; right: -4vw; z-index: 0;
+      font-size: min(92vw, 430px); line-height: 1; font-weight: 900;
+      color: rgba(255,255,255,.30); letter-spacing: -6vw; pointer-events: none;
+    }
+    .franja {
+      width: 100vw; height: 7px; z-index: 1;
+      background: repeating-linear-gradient(90deg, #FF7A00 0, #FF7A00 48px, #C8E646 48px, #C8E646 72px);
+    }
+    .logo {
+      position: relative; width: 112px; height: 112px; border-radius: 50%;
+      background: #fff; border: 4px solid #121212; margin-top: 34px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 22px rgba(18,18,18,.22); z-index: 1;
+    }
+    .logo .c { font-size: 62px; font-weight: 900; color: #121212; line-height: 1; margin-top: 2px; letter-spacing: -2px; }
+    .logo .papitas { position: absolute; width: 52px; height: 52px; right: 2px; bottom: 2px; }
+    .logo .papa {
+      position: absolute; width: 11px; bottom: 12px; height: 30px;
+      border-radius: 5px 5px 2px 2px; z-index: 1;
+      background: linear-gradient(180deg, #C8E646 0%, #F6C042 32%, #F6C042 100%);
+      border: 1.5px solid #121212;
+    }
+    .logo .papa.n { background: linear-gradient(180deg, #FF7A00 0%, #F6C042 32%, #F6C042 100%); }
+    .logo .papa.p1 { left: 4px;  transform: rotate(-16deg); }
+    .logo .papa.p2 { left: 20px; transform: rotate(2deg); }
+    .logo .papa.p3 { left: 36px; transform: rotate(15deg); }
+    .logo .caja {
+      position: absolute; left: 2px; bottom: 0; width: 48px; height: 16px;
+      background: #fff; border: 2px solid #121212; border-radius: 3px 3px 6px 6px; z-index: 2;
+    }
+    .nombre {
+      font-size: 1.5em; font-weight: 900; letter-spacing: 1.5px;
+      margin-top: 16px; color: #121212; text-align: center; text-transform: uppercase;
+    }
+    .sub { color: #121212; font-size: .8em; letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; text-align: center; opacity: .7; }
+
+    /* ---------- MENÚ INTERACTIVO ---------- */
+    .menu { margin-top: 26px; width: 100%; max-width: 420px; z-index: 1; }
+    .categoria {
+      display: flex; align-items: center; gap: 8px;
+      margin: 20px 0 8px; font-size: .72em; letter-spacing: 2px;
+      text-transform: uppercase; color: #121212; font-weight: 900;
+    }
+    .categoria::after { content:""; flex:1; height:3px; background: #FF7A00; border-radius:2px; }
+
+    .platillo {
+      background: #fff; border-radius: 14px; margin-bottom: 10px;
+      box-shadow: 0 3px 10px rgba(18,18,18,.10);
+      overflow: hidden; transition: transform .15s, box-shadow .15s;
+    }
+    .platillo:active { transform: scale(.985); }
+    .platillo.resaltado { box-shadow: 0 4px 18px rgba(255,122,0,.45); border: 2px solid #FF7A00; }
+    .platillo .cabeza {
+      display: flex; align-items: center; gap: 12px; padding: 13px 14px;
+      cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+    }
+    .platillo .mini {
+      width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.7em;
+      border: 2px solid #121212;
+    }
+    .platillo .info { flex: 1; min-width: 0; }
+    .platillo .info strong { display: block; font-size: .95em; color: #121212; }
+    .platillo .info .cat { font-size: .72em; opacity: .55; text-transform: uppercase; letter-spacing: 1px; }
+    .platillo .precio { background: #C8E646; color: #121212; font-weight: 900; padding: 4px 12px; border-radius: 20px; font-size: .9em; white-space: nowrap; }
+    .platillo .chevron { font-size: 1em; opacity: .4; transition: transform .25s; }
+    .platillo.abierto .chevron { transform: rotate(180deg); }
+
+    /* Detalle desplegable: foto + ingredientes + añadir */
+    .platillo .detalle {
+      display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s ease;
+    }
+    .platillo.abierto .detalle { grid-template-rows: 1fr; }
+    .platillo .detalle > div { overflow: hidden; }
+    .platillo .cuerpo { padding: 0 14px 14px; }
+    .platillo .foto {
+      height: 150px; border-radius: 12px; border: 2px solid #121212;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4.2em; background: linear-gradient(135deg, #5AB9EA, #C8E646);
+      transform: scale(.96); opacity: 0;
+      transition: transform .3s ease .05s, opacity .3s ease .05s;
+    }
+    .platillo.abierto .foto { transform: scale(1); opacity: 1; }
+    .platillo .ingredientes { margin-top: 12px; }
+    .platillo .ingredientes span {
+      display: inline-block; font-size: .78em; font-weight: 600; color: #121212;
+      background: #eef4f8; border-radius: 20px; padding: 4px 10px; margin: 0 6px 6px 0;
+    }
+    .platillo .acciones { display: flex; gap: 10px; margin-top: 12px; }
+    .btn-agregar {
+      flex: 1; border: none; cursor: pointer; font-family: inherit;
+      background: #FF7A00; color: #fff; font-weight: 900; font-size: .95em;
+      padding: 13px; border-radius: 10px; letter-spacing: .5px;
+      transition: transform .15s; -webkit-tap-highlight-color: transparent;
+    }
+    .btn-agregar:active { transform: scale(.96); }
+    .btn-agregar.activo { background: #25D366; }
+    .btn-uno {
+      width: 52px; flex-shrink: 0; border: 2px solid #121212; background: #fff;
+      cursor: pointer; font-weight: 900; font-size: 1em; color: #121212;
+      border-radius: 10px; transition: transform .15s; -webkit-tap-highlight-color: transparent;
+    }
+    .btn-uno:active { transform: scale(.94); }
+
+    /* ---------- INFO ---------- */
+    .info { margin-top: 22px; width: 100%; max-width: 420px; z-index: 1; }
+    .info .cajita {
+      background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 8px;
+      box-shadow: 0 3px 10px rgba(18,18,18,.10); text-align: center;
+    }
+    .info .cajita span { display:block; font-size:.7em; letter-spacing:1.5px; text-transform:uppercase; opacity:.55; font-weight:700; margin-bottom:2px; }
+    .info .cajita strong { font-size:.95em; color:#121212; }
+
+    .btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; max-width: 420px; padding: 17px;
+      border-radius: 12px; font-size: 1.05em; font-weight: 900;
+      text-decoration: none; margin-top: 14px; letter-spacing: .5px;
+      transition: transform .15s; z-index: 1;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-pedir { background: #FF7A00; color: #fff; box-shadow: 0 5px 18px rgba(255,122,0,.45); }
+    .btn-whatsapp { background: #25D366; color: #fff; box-shadow: 0 5px 18px rgba(37,211,102,.35); }
+    .btn-llamar { background: #121212; color: #fff; box-shadow: 0 5px 18px rgba(18,18,18,.35); }
+
+    .footer { margin-top: 28px; font-size: .72em; color: #121212; text-align: center; letter-spacing: 1px; opacity: .55; z-index: 1; }
+
+    /* ---------- BARRA DE PEDIDO (sticky) ---------- */
+    .barra-pedido {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      background: #121212; color: #fff; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      display: flex; align-items: center; gap: 12px;
+      transform: translateY(110%); transition: transform .3s ease;
+      box-shadow: 0 -6px 20px rgba(0,0,0,.25);
+    }
+    .barra-pedido.visible { transform: translateY(0); }
+    .barra-pedido .resumen { flex: 1; min-width: 0; }
+    .barra-pedido .resumen strong { display: block; font-size: .82em; letter-spacing: 1px; }
+    .barra-pedido .resumen span { font-size: .72em; opacity: .6; }
+    .barra-pedido a {
+      background: #FF7A00; color: #fff; text-decoration: none; font-weight: 900;
+      padding: 12px 18px; border-radius: 10px; font-size: .9em; white-space: nowrap;
+      transition: transform .15s;
+    }
+    .barra-pedido a:active { transform: scale(.95); }
+  </style>
+</head>
+<body>
+  <div class="franja"></div>
+  <div class="logo">
+    <span class="c">C</span>
+    <span class="papitas">
+      <span class="papa n p1"></span>
+      <span class="papa p2"></span>
+      <span class="papa n p3"></span>
+      <span class="caja"></span>
+    </span>
+  </div>
+
+  <!-- EDITAR: nombre del negocio -->
+  <div class="nombre">Comidas Rápidas Sibaté</div>
+  <div class="sub">Domicilios en todo Sibaté · Cundinamarca</div>
+
+  <div class="menu" id="menu"></div>
+
+  <div class="info">
+    <!-- EDITAR: horarios -->
+    <div class="cajita"><span>Horario</span><strong>Por confirmar</strong></div>
+    <!-- EDITAR: zona de domicilio -->
+    <div class="cajita"><span>Domicilios</span><strong>Sibaté y alrededores</strong></div>
+  </div>
+
+  <a class="btn btn-llamar" href="tel:+573222676860">LLAMAR AHORA</a>
+
+  <div class="footer">COMIDAS RÁPIDAS SIBATÉ · SIBATÉ, CUNDINAMARCA</div>
+
+  <!-- Barra del pedido: aparece al agregar productos -->
+  <div class="barra-pedido" id="barra">
+    <div class="resumen">
+      <strong id="barra-txt">Tu pedido</strong>
+      <span id="barra-sub">Agrega algo rico</span>
+    </div>
+    <a id="barra-link" href="#">ENVIAR</a>
+  </div>
+
+  <script>
+    // ============================================================
+    // DATOS DEL NEGOCIO — EDITA AQUÍ
+    // ============================================================
+    const WHATSAPP_INTL = "573222676860"; // formato wa.me, sin +
+    const NOMBRE = "Comidas Rápidas Sibaté";
+
+    // PRECIOS E INGREDIENTES SON PLACEHOLDER — reemplaza por los reales
+    // emoji = "foto" del plato (placeholder)
+    const C = ["#5AB9EA", "#77c6ee", "#C8E646", "#FFD27A", "#FF7A00", "#aadff2"];
+    const MENU = [
+      { cat:"Desayunos y huevos", nombre:"Huevos fritos",     precio:5000,  emoji:"🍳", ing:["Huevos de campo","Arroz con hogao","Pan", "Café opcional"] },
+      { cat:"Desayunos y huevos", nombre:"Huevos revueltos",  precio:5500,  emoji:"🍳", ing:["Huevos revueltos","Cebolla y tomate","Arroz","Pan"] },
+      { cat:"Desayunos y huevos", nombre:"Huevos perico",     precio:6000,  emoji:"🍅", ing:["Hogao de tomate y cebolla","Aguacate","Arroz","Pan"] },
+
+      { cat:"Arepas", nombre:"Arepas rellenas",   precio:6500, emoji:"🫓", ing:["Arepa de maíz","Queso derretido","Pollo o carne a elegir","Mantequilla"] },
+      { cat:"Arepas", nombre:"Arepas rancheras",  precio:8000, emoji:"🥓", ing:["Arepa de maíz","Huevo","Longaniza","Chorizo","Queso y hogao"] },
+
+      { cat:"Picadas y fritos", nombre:"Papa criolla con longaniza casera", precio:10000, emoji:"🌭", ing:["Papas criollas fritas","Longaniza casera artesanal","Ají y limón","Mayonesa"] },
+      { cat:"Picadas y fritos", nombre:"Salchipapa", precio:9000, emoji:"🍟", ing:["Papas fritas","Salchicha","Queso rallado","Salsa de la casa","Piña"] },
+
+      { cat:"Bebidas", nombre:"Café",          precio:2500, emoji:"☕", ing:["Café tinto tradicional"] },
+      { cat:"Bebidas", nombre:"Café con leche", precio:3000, emoji:"🥛", ing:["Café","Leche caliente"] },
+      { cat:"Bebidas", nombre:"Avena",          precio:3500, emoji:"🥣", ing:["Avena fría o caliente","Hielo"] },
+    ];
+
+    // ============================================================
+    // RENDER DEL MENÚ
+    // ============================================================
+    const menuEl = document.getElementById("menu");
+    const barra = document.getElementById("barra");
+    const barraTxt = document.getElementById("barra-txt");
+    const barraSub = document.getElementById("barra-sub");
+    const barraLink = document.getElementById("barra-link");
+
+    const moneda = n => "$" + n.toLocaleString("es-CO") + " COP";
+    const pedido = {}; // id -> cantidad
+
+    let i = 0;
+    const catRender = new Map();
+    MENU.forEach(m => {
+      if (!catRender.has(m.cat)) { catRender.set(m.cat, []); }
+      catRender.get(m.cat).push(m);
+    });
+
+    catRender.forEach((items, cat) => {
+      const h = document.createElement("div");
+      h.className = "categoria"; h.textContent = cat;
+      menuEl.appendChild(h);
+
+      items.forEach(m => {
+        i += 1;
+        const id = i;
+        const c = C[i % C.length];
+        const card = document.createElement("div");
+        card.className = "platillo";
+        card.innerHTML = `
+          <div class="cabeza">
+            <div class="mini" style="background:linear-gradient(135deg,${c},#ffffff)">${m.emoji}</div>
+            <div class="info">
+              <strong>${m.nombre}</strong>
+              <span class="cat">${m.cat}</span>
+            </div>
+            <span class="precio">${moneda(m.precio)}</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="detalle"><div>
+            <div class="cuerpo">
+              <div class="foto" style="background:linear-gradient(135deg,${c},#C8E646)">${m.emoji}</div>
+              <div class="ingredientes">${m.ing.map(x => `<span>${x}</span>`).join("")}</div>
+              <div class="acciones">
+                <button class="btn-agregar">AÑADIR AL PEDIDO</button>
+                <button class="btn-uno" title="Pedir solo esto">🛒</button>
+              </div>
+            </div>
+          </div></div>`;
+
+        const cabeza = card.querySelector(".cabeza");
+        const btnAgregar = card.querySelector(".btn-agregar");
+        const btnUno = card.querySelector(".btn-uno");
+
+        cabeza.addEventListener("click", () => {
+          card.classList.toggle("abierto");
+          if (card.classList.contains("abierto")) {
+            setTimeout(() => card.scrollIntoView({ behavior:"smooth", block:"nearest" }), 80);
+          }
+        });
+
+        const refrescar = () => {
+          const n = pedido[id] || 0;
+          btnAgregar.classList.toggle("activo", n > 0);
+          btnAgregar.textContent = n > 0 ? `✓ AGREGADO (${n})` : "AÑADIR AL PEDIDO";
+          card.classList.toggle("resaltado", n > 0);
+          actualizarBarra();
+        };
+
+        btnAgregar.addEventListener("click", e => {
+          e.stopPropagation();
+          pedido[id] = (pedido[id] || 0) + 1;
+          refrescar();
+        });
+
+        // Pedir este plato solo, directo a WhatsApp
+        btnUno.addEventListener("click", e => {
+          e.stopPropagation();
+          const url = "https://wa.me/" + WHATSAPP_INTL +
+            "?text=" + encodeURIComponent("Hola " + NOMBRE + ", quiero pedir: " + m.nombre + " (" + moneda(m.precio) + ")");
+          window.open(url, "_blank");
+        });
+
+        menuEl.appendChild(card);
+      });
+    });
+
+    // ============================================================
+    // BARRA DE PEDIDO (acumula y envía por WhatsApp)
+    // ============================================================
+    function actualizarBarra() {
+      const lineas = [];
+      let total = 0, nItems = 0;
+      MENU.forEach((m, idx) => {
+        const n = pedido[idx + 1] || 0;
+        if (n > 0) { lineas.push("• " + m.nombre + " x" + n + " (" + moneda(m.precio * n) + ")"); total += m.precio * n; nItems += n; }
+      });
+      if (nItems === 0) {
+        barra.classList.remove("visible");
+        return;
+      }
+      barraTxt.textContent = nItems + (nItems === 1 ? " producto" : " productos") + " · " + moneda(total);
+      barraSub.textContent = "Domicilio en Sibaté · Pide y te contestamos al instante";
+      const texto = "Hola " + NOMBRE + "! Quiero hacer este pedido:\n" +
+        lineas.join("\n") + "\n\nTotal: " + moneda(total);
+      barraLink.href = "https://wa.me/" + WHATSAPP_INTL + "?text=" + encodeURIComponent(texto);
+      barra.classList.add("visible");
+    }
+  </script>
+</body>
+</html>

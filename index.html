@@ -20,10 +20,11 @@
   <meta name="theme-color" content="#5AB9EA"/>
   <meta property="og:title" content="Celeste Street Food — Domicilios en Sibaté"/>
   <meta property="og:description" content="Desayunos, arepas, salchipapa y papa criolla. Ármalo y pídelo por WhatsApp."/>
+  <meta property="og:image" content="https://celeste-street-food.github.io/img/logo.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&family=Outfit:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%9F%3C/text%3E%3C/svg%3E"/>
+  <link rel="icon" href="img/favicon.png"/>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     html { scroll-behavior: smooth; }
@@ -48,24 +49,9 @@
       position: relative; width: 112px; height: 112px; border-radius: 50%;
       background: #fff; border: 4px solid #121212; margin-top: 34px;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 8px 22px rgba(18,18,18,.22); z-index: 1;
+      box-shadow: 0 8px 22px rgba(18,18,18,.22); z-index: 1; overflow: hidden;
     }
-    .logo .c { font-size: 62px; font-weight: 900; color: #121212; line-height: 1; margin-top: 2px; letter-spacing: -2px; }
-    .logo .papitas { position: absolute; width: 52px; height: 52px; right: 2px; bottom: 2px; }
-    .logo .papa {
-      position: absolute; width: 11px; bottom: 12px; height: 30px;
-      border-radius: 5px 5px 2px 2px; z-index: 1;
-      background: linear-gradient(180deg, #C8E646 0%, #F6C042 32%, #F6C042 100%);
-      border: 1.5px solid #121212;
-    }
-    .logo .papa.n { background: linear-gradient(180deg, #FF7A00 0%, #F6C042 32%, #F6C042 100%); }
-    .logo .papa.p1 { left: 4px;  transform: rotate(-16deg); }
-    .logo .papa.p2 { left: 20px; transform: rotate(2deg); }
-    .logo .papa.p3 { left: 36px; transform: rotate(15deg); }
-    .logo .caja {
-      position: absolute; left: 2px; bottom: 0; width: 48px; height: 16px;
-      background: #fff; border: 2px solid #121212; border-radius: 3px 3px 6px 6px; z-index: 2;
-    }
+    .logo img { width: 96%; height: 96%; object-fit: contain; }
     .nombre {
       font-family: 'Inter', 'Segoe UI', sans-serif;
       font-size: 1.5em; font-weight: 900; letter-spacing: 1.5px;
@@ -306,15 +292,7 @@
 </head>
 <body>
   <div class="franja"></div>
-  <div class="logo">
-    <span class="c">C</span>
-    <span class="papitas">
-      <span class="papa n p1"></span>
-      <span class="papa p2"></span>
-      <span class="papa n p3"></span>
-      <span class="caja"></span>
-    </span>
-  </div>
+  <div class="logo"><img src="img/logo.png" alt="Logo Celeste Street Food"/></div>
 
   <!-- EDITAR: el nombre, eslogan y demás viven en datos.js (misma carpeta).
        OJO: al cambiar el nombre, actualiza también <title> y las og: de arriba

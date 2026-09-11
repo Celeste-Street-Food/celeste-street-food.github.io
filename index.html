@@ -106,6 +106,18 @@
       font-size: .64em; font-weight: 800; color: #121212; background: #C8E646;
       padding: 2px 8px; border-radius: 20px; white-space: nowrap;
     }
+    .badge-estrella {
+      font-size: .64em; font-weight: 800; color: #fff; background: #FF7A00;
+      padding: 2px 8px; border-radius: 20px; white-space: nowrap;
+    }
+    .badge-nuevo {
+      font-size: .64em; font-weight: 800; color: #fff; background: #121212;
+      padding: 2px 8px; border-radius: 20px; white-space: nowrap;
+    }
+    .platillo .envase {
+      margin-top: 10px; font-size: .74em; font-weight: 600; color: #5a6570;
+      background: #F7F8FA; border-radius: 10px; padding: 7px 11px;
+    }
     .platillo .precio {
       font-family: 'Inter', 'Segoe UI', sans-serif;
       background: #fff; border: 1.5px solid #E3E6EA; color: #121212; font-weight: 800;
@@ -435,6 +447,8 @@
               <div class="fila-nombre">
                 <strong>${m.nombre}</strong>
                 ${m.casero ? '<span class="badge-casero">Casero</span>' : ''}
+                ${m.estrella ? '<span class="badge-estrella">⭐ Favorito</span>' : ''}
+                ${m.nuevo ? '<span class="badge-nuevo">Nuevo</span>' : ''}
               </div>
               <span class="cat">${m.cat}</span>
             </div>
@@ -452,6 +466,7 @@
                   : ""}
               </div>
               <div class="ingredientes">${m.ing.map(x => `<span>${x}</span>`).join("")}</div>
+              ${m.envase ? `<div class="envase">📦 Se empaca en: ${m.envase}</div>` : ""}
               <div class="acciones"></div>
             </div>
           </div></div>`;

@@ -175,8 +175,16 @@
       -webkit-tap-highlight-color: transparent;
     }
     .platillo .ingredientes span:active { transform: scale(.94); }
-    .platillo .ingredientes span.sel {
-      background: #DCF8E6; border: 1.5px solid #2FAE57; color: #0d3b21; font-weight: 600;
+    .platillo .ingredientes span.sel,
+    .platillo .ingredientes span.sin {
+      font-weight: 600;
+    }
+    .platillo .ingredientes span.sin {
+      background: #FDECEA; border: 1.5px solid #E53935; color: #B3261E;
+      text-decoration: line-through;
+    }
+    .platillo .pista {
+      font-size: .68em; font-weight: 600; letter-spacing: .3px; color: #8a949e; margin-bottom: 7px;
     }
     .platillo .acciones { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
     .btn-agregar {
@@ -395,7 +403,7 @@
     const fotosDe = m => (m.fotos && m.fotos.length) ? m.fotos : [m.slug + ".jpg"];
     const fotoMini = m => fotosDe(m)[0];
     const pedido = {}; // id -> cantidad
-    const selMap = new Map(); // id -> [ingredientes seleccionados]
+    const sinMap = new Map(); // id -> [ingredientes que el cliente NO quiere]
     const registro = new Map(); // id -> { m, refrescar, chips }
     let panelAbierto = false;
 
@@ -403,12 +411,12 @@
     // PERSISTENCIA: el pedido sobrevive recargas de la página
     // (guardado local del navegador; no se envía a ningún servidor)
     // ============================================================
-    const LS_KEY = "pedido-tarjeta";
+    const LS_KEY = "pedido-tarjeta-v2";
     function guardarPedido() {
       try {
         localStorage.setItem(LS_KEY, JSON.stringify({
           pedido,
-          sel: Array.from(selMap.entries()),
+          sin: Array.from(sinMap.entries()),
           dir: document.getElementById("panelDireccion").value
         }));
       } catch (e) { /* sin localStorage (modo privado), el pedido vive solo en memoria */ }
@@ -418,7 +426,7 @@
         const d = JSON.parse(localStorage.getItem(LS_KEY) || "null");
         if (!d) return;
         for (const k in d.pedido) pedido[k] = d.pedido[k];
-        (d.sel || []).forEach(par => selMap.set(Number(par[0]), par[1]));
+        (d.sin || []).forEach(par => sinMap.set(Number(par[0]), par[1]));
         if (d.dir) document.getElementById("panelDireccion").value = d.dir;
       } catch (e) { /* datos corruptos: se empieza de cero */ }
     }
@@ -465,6 +473,7 @@
                   ? `<div class="galeria-dots">${fotosDe(m).map((f, fi) => `<button class="dot ${fi === 0 ? 'activ' : ''}" aria-label="Ver foto ${fi + 1}"></button>`).join("")}</div>`
                   : ""}
               </div>
+              <div class="pista">Toca un ingrediente para quitarlo del plato</div>
               <div class="ingredientes">${m.ing.map(x => `<span>${x}</span>`).join("")}</div>
               ${m.envase ? `<div class="envase">📦 Se empaca en: ${m.envase}</div>` : ""}
               <div class="acciones"></div>
@@ -490,20 +499,20 @@
           }
         });
 
-        // Ingredientes seleccionables: personalización que viaja en el pedido
+        // "Sin" ingredientes: tocar un chip lo tacha y viaja como exclusión
         const chips = card.querySelectorAll(".ingredientes span");
         chips.forEach(chip => chip.addEventListener("click", e => {
           e.stopPropagation();
-          chip.classList.toggle("sel");
-          const sel = [];
-          chips.forEach(c => { if (c.classList.contains("sel")) sel.push(c.textContent); });
-          if (sel.length) selMap.set(id, sel); else selMap.delete(id);
+          chip.classList.toggle("sin");
+          const sin = [];
+          chips.forEach(c => { if (c.classList.contains("sin")) sin.push(c.textContent); });
+          if (sin.length) sinMap.set(id, sin); else sinMap.delete(id);
           guardarPedido();
         }));
 
         function pedirSoloEste() {
-          const notas = selMap.get(id);
-          const extra = (notas && notas.length) ? " · notas: " + notas.join(", ") : "";
+          const sin = sinMap.get(id);
+          const extra = (sin && sin.length) ? " | Sin: " + sin.join(", ") : "";
           const url = "https://wa.me/" + WHATSAPP_INTL +
             "?text=" + encodeURIComponent("Hola " + NOMBRE + ", quiero pedir: " + m.nombre + " (" + moneda(m.precio) + extra + ")");
           window.open(url, "_blank");
@@ -574,9 +583,9 @@
 
     function mensajeWhatsapp(lineas, total) {
       const cuerpo = lineas.map(l => {
-        const notas = selMap.get(l.id);
-        const extra = (notas && notas.length) ? " · notas: " + notas.join(", ") : "";
-        return "• " + l.m.nombre + " x" + l.n + " (" + moneda(l.subtotal) + extra + ")";
+        const sin = sinMap.get(l.id);
+        const quita = (sin && sin.length) ? " | Sin: " + sin.join(", ") : "";
+        return "• " + l.m.nombre + " x" + l.n + " (" + moneda(l.subtotal) + quita + ")";
       }).join("\n");
       let texto = "Hola " + NOMBRE + "! Quiero hacer este pedido:\n" + cuerpo + "\n\nTotal: " + moneda(total);
       const dir = document.getElementById("panelDireccion").value.trim();
@@ -653,8 +662,8 @@
     panelVaciar.addEventListener("click", () => {
       registro.forEach(({ refrescarCard, chips }, id) => {
         delete pedido[id];
-        selMap.delete(id);
-        chips.forEach(c => c.classList.remove("sel"));
+        sinMap.delete(id);
+        chips.forEach(c => c.classList.remove("sin"));
       });
       registro.forEach(({ refrescarCard }) => refrescarCard());
     });
@@ -662,8 +671,8 @@
     // Al abrir la tarjeta se recupera el pedido guardado (por si recargaron)
     cargarPedido();
     registro.forEach(({ refrescarCard, chips }, id) => {
-      const sel = selMap.get(id);
-      if (sel && sel.length) chips.forEach(c => { if (sel.includes(c.textContent)) c.classList.add("sel"); });
+      const sin = sinMap.get(id);
+      if (sin && sin.length) chips.forEach(c => { if (sin.includes(c.textContent)) c.classList.add("sin"); });
       if (pedido[id]) refrescarCard();
     });
   </script>

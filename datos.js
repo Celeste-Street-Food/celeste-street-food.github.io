@@ -10,7 +10,7 @@
 // Los precios son PLACEHOLDER hasta confirmar los reales.
 // ============================================================
 const DATOS = {
-  "nombre": "Comidas Rápidas Sibaté",
+  "nombre": "Celeste Street Food",
   "eslogan": "Domicilios en todo Sibaté · Cundinamarca",
   "propuesta": "Precio directo, sin recargos de apps de domicilio",
   "whatsappIntl": "573222676860",
@@ -18,7 +18,7 @@ const DATOS = {
   "zonaDomicilio": "Sibaté y alrededores",
   "horario": "Por confirmar",
   "tiempoDomicilio": "20–30 min aprox.",
-  "urlPublica": "https://sibatecomidas.github.io",
+  "urlPublica": "https://celeste-street-food.github.io",
   "mensajeWhatsapp": "Hola, quiero hacer un pedido",
   "menu": [
     { "cat": "Desayunos y huevos", "nombre": "Huevos fritos",     "precio": 5000,  "slug": "huevos-fritos",     "emoji": "🍳", "ing": ["Huevos de campo", "Arroz con hogao", "Pan", "Café opcional"] },

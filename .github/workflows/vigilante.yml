@@ -1,0 +1,39 @@
+name: Vigilante del sitio
+
+# Se ejecuta cada 30 minutos y también se puede lanzar a mano
+# (pestaña Actions -> Vigilante del sitio -> Run workflow)
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Revisar que la tarjeta responde
+        id: check
+        run: |
+          CODIGO=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 20 https://celeste-street-food.github.io/)
+          echo "codigo=$CODIGO" >> "$GITHUB_OUTPUT"
+          if [ "$CODIGO" != "200" ]; then
+            echo "caido=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Abrir alerta si el sitio está caído
+        if: steps.check.outputs.caido == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ABIERTAS=$(gh issue list -R "${{ github.repository }}" --state open --json title \
+            --jq '[.[] | select(.title | startswith("🚨 Tarjeta caída"))] | length')
+          if [ "$ABIERTAS" = "0" ]; then
+            gh issue create -R "${{ github.repository }}" \
+              --title "🚨 Tarjeta caída (HTTP ${{ steps.check.outputs.codigo }})" \
+              --body "El Vigilante detectó que https://celeste-street-food.github.io no respondió 200.
+
+            Revisar: GitHub -> Settings -> Pages, y el estado del workflow de despliegue."
+          fi

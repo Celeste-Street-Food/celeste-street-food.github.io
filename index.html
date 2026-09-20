@@ -255,6 +255,10 @@
     .btn:active { transform: scale(.97); }
     .btn-whatsapp { background: #25D366; color: #fff; box-shadow: 0 5px 18px rgba(37,211,102,.35); }
     .btn-llamar { background: #121212; color: #fff; box-shadow: 0 5px 18px rgba(18,18,18,.35); }
+    .btn-compartir {
+      background: #fff; color: #121212; border: 2px solid #121212;
+      box-shadow: 0 4px 14px rgba(18,18,18,.14);
+    }
 
     .footer { margin-top: 28px; font-size: .72em; color: #121212; text-align: center; letter-spacing: 1px; opacity: .55; z-index: 1; }
 
@@ -336,7 +340,7 @@
   <!-- EDITAR: el nombre, eslogan y demás viven en datos.js (misma carpeta).
        OJO: al cambiar el nombre, actualiza también <title> y las og: de arriba
        (las apps de WhatsApp no ejecutan JavaScript al generar la vista previa). -->
-  <div class="nombre" id="nombreNegocio">Comidas Rápidas Sibaté</div>
+  <div class="nombre" id="nombreNegocio">Celeste Street Food</div>
   <div class="sub" id="subNegocio">Domicilios en todo Sibaté · Cundinamarca</div>
   <div class="propuesta" id="propuestaTxt">Precio directo, sin recargos de apps de domicilio</div>
 
@@ -349,6 +353,7 @@
   </div>
 
   <a class="btn btn-llamar" id="btnLlamar" href="tel:+573222676860">LLAMAR AHORA</a>
+  <button class="btn btn-compartir" id="btnCompartir">COMPARTIR TARJETA</button>
 
   <div class="footer" id="footerTxt">CELESTE STREET FOOD · SIBATÉ, CUNDINAMARCA</div>
 
@@ -720,6 +725,24 @@
         chips.forEach(c => c.classList.remove("sin"));
       });
       registro.forEach(({ refrescarCard }) => refrescarCard());
+    });
+
+    // COMPARTIR: hoja nativa del celular; si no hay, copia el link
+    document.getElementById("btnCompartir").addEventListener("click", () => {
+      const texto = NOMBRE + " · " + DATOS.eslogan + " — " + DATOS.propuesta;
+      const url = DATOS.urlPublica;
+      if (navigator.share) {
+        navigator.share({ title: NOMBRE, text: texto, url: url }).catch(() => {});
+      } else {
+        const btn = document.getElementById("btnCompartir");
+        (navigator.clipboard || { writeText: () => Promise.reject() })
+          .writeText(texto + "\n" + url)
+          .then(() => {
+            btn.textContent = "¡LINK COPIADO!";
+            setTimeout(() => (btn.textContent = "COMPARTIR TARJETA"), 1800);
+          })
+          .catch(() => prompt("Copia este link:", url));
+      }
     });
 
     // Al abrir la tarjeta se recupera el pedido guardado (por si recargaron)

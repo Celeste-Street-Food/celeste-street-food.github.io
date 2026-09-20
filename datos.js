@@ -22,6 +22,7 @@ const DATOS = {
       "nombre": "Huevos fritos",
       "precio": 5000,
       "slug": "huevos-fritos",
+      "unidades": 12,
       "emoji": "🍳",
       "ing": [
         "Huevos de campo",
@@ -34,13 +35,15 @@ const DATOS = {
         "huevos-fritos-rustica.jpg"
       ],
       "envase": "Caja kraft barquito CELESTE STREET FOOD",
-      "casero": true
+      "casero": true,
+      "agotado": false
     },
     {
       "cat": "Desayunos y huevos",
       "nombre": "Huevos revueltos",
       "precio": 5500,
       "slug": "huevos-revueltos",
+      "unidades": 10,
       "emoji": "🍳",
       "ing": [
         "Huevos revueltos",
@@ -59,6 +62,7 @@ const DATOS = {
       "nombre": "Huevos perico",
       "precio": 6000,
       "slug": "huevos-perico",
+      "unidades": 8,
       "emoji": "🍅",
       "ing": [
         "Hogao de tomate y cebolla",
@@ -75,8 +79,9 @@ const DATOS = {
     {
       "cat": "Arepas",
       "nombre": "Arepas rellenas",
-      "precio": 6500,
+      "precio": 7000,
       "slug": "arepas-rellenas",
+      "unidades": 15,
       "emoji": "🫓",
       "ing": [
         "Arepa de maíz",
@@ -96,6 +101,7 @@ const DATOS = {
       "nombre": "Arepas rancheras",
       "precio": 8000,
       "slug": "arepas-rancheras",
+      "unidades": 10,
       "emoji": "🥓",
       "ing": [
         "Arepa de maíz",
@@ -113,8 +119,9 @@ const DATOS = {
     {
       "cat": "Picadas y fritos",
       "nombre": "Papa criolla con longaniza casera",
-      "precio": 10000,
+      "precio": 7000,
       "slug": "papa-criolla-longaniza",
+      "unidades": 6,
       "emoji": "🌭",
       "ing": [
         "Papas criollas fritas",
@@ -132,8 +139,9 @@ const DATOS = {
     {
       "cat": "Picadas y fritos",
       "nombre": "Salchipapa",
-      "precio": 9000,
+      "precio": 10000,
       "slug": "salchipapa",
+      "unidades": 20,
       "emoji": "🍟",
       "ing": [
         "Papas fritas",
@@ -151,8 +159,9 @@ const DATOS = {
     {
       "cat": "Picadas y fritos",
       "nombre": "Patacón relleno",
-      "precio": 8000,
+      "precio": 10000,
       "slug": "patacon-relleno",
+      "unidades": 3,
       "emoji": "🍌",
       "ing": [
         "Patacón de plátano verde",
@@ -170,7 +179,7 @@ const DATOS = {
     {
       "cat": "Bebidas",
       "nombre": "Café",
-      "precio": 2500,
+      "precio": 1200,
       "slug": "cafe",
       "emoji": "☕",
       "ing": [
@@ -185,7 +194,7 @@ const DATOS = {
     {
       "cat": "Bebidas",
       "nombre": "Café con leche",
-      "precio": 3000,
+      "precio": 1500,
       "slug": "cafe-con-leche",
       "emoji": "🥛",
       "ing": [
@@ -201,7 +210,7 @@ const DATOS = {
     {
       "cat": "Bebidas",
       "nombre": "Avena caliente",
-      "precio": 3500,
+      "precio": 2000,
       "slug": "avena",
       "emoji": "🥣",
       "ing": [
@@ -218,7 +227,7 @@ const DATOS = {
     {
       "cat": "Bebidas",
       "nombre": "Avena fría con hielo",
-      "precio": 4000,
+      "precio": 2000,
       "slug": "avena-fria",
       "emoji": "🧊",
       "ing": [

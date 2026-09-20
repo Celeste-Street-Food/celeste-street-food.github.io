@@ -146,8 +146,10 @@
       document.getElementById("pieTelefono").textContent = tel;
 
       const moneda = n => "$" + n.toLocaleString("es-CO");
+      const agotadoReal = m =>
+        m.agotado || (m.unidades !== undefined && m.unidades !== null && Number(m.unidades) <= 0);
       const chip = m =>
-        m.agotado ? '<span class="chip agotado">Agotado</span>' :
+        agotadoReal(m) ? '<span class="chip agotado">Agotado</span>' :
         m.casero ? '<span class="chip casero">Casero</span>' :
         m.estrella ? '<span class="chip estrella">⭐ Favorito</span>' :
         m.nuevo ? '<span class="chip nuevo">Nuevo</span>' : "";

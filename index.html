@@ -118,6 +118,12 @@
       font-size: .64em; font-weight: 800; color: #fff; background: #b3261e;
       padding: 2px 8px; border-radius: 20px; white-space: nowrap;
     }
+    .badge-pocos {
+      font-size: .64em; font-weight: 800; color: #121212; background: #C8E646;
+      padding: 2px 8px; border-radius: 20px; white-space: nowrap;
+      animation: parpadeo 1.6s infinite;
+    }
+    @keyframes parpadeo { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
     .platillo.agotado { opacity: .62; }
     .platillo.agotado .ingredientes { opacity: .5; pointer-events: none; }
     .msj-agotado {
@@ -424,6 +430,10 @@
     // si no, una sola foto llamada img/<slug>.jpg (si falta, queda el emoji)
     const fotosDe = m => (m.fotos && m.fotos.length) ? m.fotos : [m.slug + ".jpg"];
     const fotoMini = m => fotosDe(m)[0];
+    // Stock opcional: "unidades" = control de inventario; sin el campo = sin control (∞)
+    const stockDe = m => (m.unidades === undefined || m.unidades === null) ? null : Number(m.unidades);
+    const agotadoReal = m => m.agotado || (stockDe(m) !== null && stockDe(m) <= 0);
+    const quedaTxt = m => { const u = stockDe(m); return (u !== null && u > 0 && u <= 5) ? u : null; };
     const pedido = {}; // id -> cantidad
     const sinMap = new Map(); // id -> [ingredientes que el cliente NO quiere]
     const registro = new Map(); // id -> { m, refrescar, chips }
@@ -496,7 +506,7 @@
         i += 1;
         const id = i;
         const card = document.createElement("div");
-        card.className = "platillo" + (m.agotado ? " agotado" : "");
+        card.className = "platillo" + (agotadoReal(m) ? " agotado" : "");
         card.innerHTML = `
           <div class="cabeza">
             <div class="mini"><span>${m.emoji}</span><img src="img/${fotoMini(m)}" alt="${m.nombre}" loading="lazy" onerror="this.remove()"></div>
@@ -506,7 +516,8 @@
                 ${m.casero ? '<span class="badge-casero">Casero</span>' : ''}
                 ${m.estrella ? '<span class="badge-estrella">⭐ Favorito</span>' : ''}
                 ${m.nuevo ? '<span class="badge-nuevo">Nuevo</span>' : ''}
-                ${m.agotado ? '<span class="badge-agotado">Agotado</span>' : ''}
+                ${agotadoReal(m) ? '<span class="badge-agotado">Agotado</span>' : ''}
+                ${quedaTxt(m) ? '<span class="badge-pocos">Quedan ' + quedaTxt(m) + '</span>' : ''}
               </div>
               <span class="cat">${m.cat}</span>
             </div>
@@ -569,7 +580,7 @@
         }
 
         function dibujarAcciones() {
-          if (m.agotado) {
+          if (agotadoReal(m)) {
             acciones.innerHTML = '<div class="msj-agotado">Agotado hoy — vuelve mañana 🙏</div>';
             return;
           }
@@ -599,6 +610,8 @@
             });
             acciones.querySelector(".btn-mas").addEventListener("click", e => {
               e.stopPropagation();
+              const u = stockDe(m);
+              if (u !== null && (pedido[id] || 0) >= u) return;
               pedido[id] = (pedido[id] || 0) + 1;
               refrescarCard();
             });
@@ -695,6 +708,8 @@
           registro.get(id).refrescarCard();
         });
         item.querySelector(".pi-mas").addEventListener("click", () => {
+          const u = stockDe(registro.get(id).m);
+          if (u !== null && (pedido[id] || 0) >= u) return;
           pedido[id] = (pedido[id] || 0) + 1;
           registro.get(id).refrescarCard();
         });

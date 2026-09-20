@@ -20,9 +20,9 @@ const DATOS = {
     {
       "cat": "Desayunos y huevos",
       "nombre": "Huevos fritos",
-      "precio": 5000,
+      "precio": 3000,
       "slug": "huevos-fritos",
-      "unidades": 12,
+      "unidades": 11,
       "emoji": "🍳",
       "ing": [
         "Huevos de campo",
@@ -41,7 +41,7 @@ const DATOS = {
     {
       "cat": "Desayunos y huevos",
       "nombre": "Huevos revueltos",
-      "precio": 5500,
+      "precio": 3000,
       "slug": "huevos-revueltos",
       "unidades": 10,
       "emoji": "🍳",
@@ -60,7 +60,7 @@ const DATOS = {
     {
       "cat": "Desayunos y huevos",
       "nombre": "Huevos perico",
-      "precio": 6000,
+      "precio": 4000,
       "slug": "huevos-perico",
       "unidades": 8,
       "emoji": "🍅",
@@ -181,6 +181,7 @@ const DATOS = {
       "nombre": "Café",
       "precio": 1200,
       "slug": "cafe",
+      "unidades": 30,
       "emoji": "☕",
       "ing": [
         "Café tinto tradicional"
@@ -196,6 +197,7 @@ const DATOS = {
       "nombre": "Café con leche",
       "precio": 1500,
       "slug": "cafe-con-leche",
+      "unidades": 25,
       "emoji": "🥛",
       "ing": [
         "Café",
@@ -212,6 +214,7 @@ const DATOS = {
       "nombre": "Avena caliente",
       "precio": 2000,
       "slug": "avena",
+      "unidades": 10,
       "emoji": "🥣",
       "ing": [
         "Avena caliente",
@@ -229,6 +232,7 @@ const DATOS = {
       "nombre": "Avena fría con hielo",
       "precio": 2000,
       "slug": "avena-fria",
+      "unidades": 8,
       "emoji": "🧊",
       "ing": [
         "Avena fría",
